@@ -112,14 +112,36 @@ const moviesController = {
     },
     destroy: function (req, res) {
         // TODO
-        db.Movie.destroy({
+        const {id} = req.params
+
+        db.ActorMovie.destroy({
             where: {
-                id: req.params.id
+                movie_id: id
             }
         })
+
         .then(response => {
-            return res.redirect('/movies')
+            
+            db.Actor.update({
+                favorite_movie_id: null
+            },{
+                where: {
+                    favorite_movie_id: id
+                }
+            })
         })
+
+        .then(response => {
+            db.Movie.destroy({
+                where: {
+                    id
+                }
+            })
+            .then(response => {
+                return res.redirect('/movies')
+            })
+        })
+        
         .catch(error => console.log(error))
     }
 
